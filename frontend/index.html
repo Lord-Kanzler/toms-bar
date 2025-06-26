@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GastroPro - Restaurant & Bar Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="sidebar bg-indigo-900 text-white w-64 md:relative fixed transform md:transform-none -translate-x-full md:translate-x-0 transition duration-300 z-50">
+            <div class="p-4 border-b border-indigo-800">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-utensils text-yellow-400 mr-2"></i>GastroPro
+                    </h1>
+                    <button id="sidebarToggle" class="md:hidden text-white hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <nav class="p-4 h-full overflow-y-auto custom-scrollbar">
+                <div class="space-y-6">
+                    <!-- Main Navigation -->
+                    <div>
+                        <div class="text-xs uppercase text-indigo-400 font-semibold mb-3 tracking-wider">Main</div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="#" id="dashboardLink" class="nav-link flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-tachometer-alt mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="ordersLink" class="nav-link flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-clipboard-list mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Orders</span>
+                                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="menuLink" class="nav-link flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-book-open mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Menu Management</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="inventoryLink" class="nav-link flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-boxes mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Inventory</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Reports -->
+                    <div>
+                        <div class="text-xs uppercase text-indigo-400 font-semibold mb-3 tracking-wider">Reports</div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-chart-line mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Sales Analytics</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-file-invoice-dollar mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Financial Reports</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Settings -->
+                    <div>
+                        <div class="text-xs uppercase text-indigo-400 font-semibold mb-3 tracking-wider">Settings</div>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="#" id="staffLink" class="nav-link flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-users mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>Staff Management</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors duration-200 group">
+                                    <i class="fas fa-cog mr-3 text-indigo-300 group-hover:text-white"></i>
+                                    <span>System Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- User Profile -->
+                <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-indigo-800 bg-indigo-900">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-10 h-10 rounded-full border-2 border-indigo-700">
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-white truncate">Sarah Johnson</div>
+                            <div class="text-xs text-indigo-300 truncate">Manager</div>
+                        </div>
+                        <button class="text-indigo-300 hover:text-white transition-colors duration-200">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto bg-gray-50">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-200">
+                <div class="p-4 flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <button id="mobileSidebarToggle" class="md:hidden text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 id="pageTitle" class="text-xl font-semibold text-gray-800">Dashboard</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button class="text-gray-600 hover:text-gray-900 relative p-2">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                                    <span class="text-xs text-white font-bold">3</span>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <!-- Search -->
+                        <div class="relative hidden md:block">
+                            <input type="text" placeholder="Search..." 
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+
+                        <!-- User Menu -->
+                        <div class="relative">
+                            <button class="flex items-center space-x-2 text-gray-600 hover:text-gray-900">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="w-8 h-8 rounded-full">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <div id="mainContent" class="p-6 max-w-7xl mx-auto">
+                <!-- Content will be dynamically loaded here -->
+                <div class="flex items-center justify-center h-64">
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                        <p class="text-gray-600">Loading GastroPro...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <span class="text-gray-700">Processing...</span>
+        </div>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modalContainer" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div id="modalContent" class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <!-- Modal content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="/static/js/api.js"></script>
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+
+</html>
