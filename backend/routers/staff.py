@@ -35,7 +35,7 @@ async def get_staff_member(staff_id: int, db: Session = Depends(get_db)):
     staff_member = db.query(StaffMemberModel).filter(StaffMemberModel.id == staff_id).first()
     if not staff_member:
         raise HTTPException(status_code=404, detail="Staff member not found")
-    return staff_member
+    return schemas.StaffMember.from_orm(staff_member)
 
 
 @router.post("/", response_model=schemas.StaffMember)

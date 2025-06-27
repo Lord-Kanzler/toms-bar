@@ -1,6 +1,6 @@
 // api.js - JavaScript API client using Axios
 
-const API_BASE_URL = 'http://localhost:8002/api';
+const API_BASE_URL = 'http://localhost:8003/api';
 
 // Utility function for error handling
 function handleApiError(error, defaultMessage = 'An error occurred') {

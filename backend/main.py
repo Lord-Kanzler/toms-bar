@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
+import uvicorn
 
 from routers import orders, menu, inventory, staff
+from routers import sales_analytics, staff_management, system_settings
 
 app = FastAPI(title="GastroPro API", version="1.0.0")
 
@@ -36,6 +38,10 @@ app.include_router(menu.router, prefix="/api/menu", tags=["menu"])
 app.include_router(inventory.router, prefix="/api/inventory", tags=["inventory"])
 app.include_router(staff.router, prefix="/api/staff", tags=["staff"])
 
+# Include analytics, management and system routes
+app.include_router(sales_analytics.router)
+app.include_router(staff_management.router)
+app.include_router(system_settings.router)
+
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

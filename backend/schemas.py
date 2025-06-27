@@ -1,6 +1,6 @@
 # schemas.py - Pydantic schemas for request/response validation
-from datetime import datetime
-from typing import Optional, List
+from datetime import datetime, date, time
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
 
 
@@ -153,8 +153,8 @@ class StaffMember(BaseModel):
             position=obj.position,
             email=obj.email,
             phone=obj.phone,
-            hourly_rate=getattr(obj, 'hourly_rate', None),
-            address=getattr(obj, 'address', None),
+            hourly_rate=None,  # This field doesn't exist in the database yet
+            address=None,      # This field doesn't exist in the database yet
             is_active=obj.is_active,
             hire_date=obj.hire_date
         )
@@ -205,3 +205,249 @@ class Order(OrderBase):
 
     class Config:
         from_attributes = True
+
+
+# Sales Schemas
+class SaleBase(BaseModel):
+    order_id: Optional[int] = None
+    sale_date: date
+    total_amount: float
+    payment_method: str
+    payment_status: str = "completed"
+    receipt_number: Optional[str] = None
+
+
+class SaleCreate(SaleBase):
+    pass
+
+
+class SaleUpdate(BaseModel):
+    sale_date: Optional[date] = None
+    total_amount: Optional[float] = None
+    payment_method: Optional[str] = None
+    payment_status: Optional[str] = None
+    receipt_number: Optional[str] = None
+
+
+class Sale(SaleBase):
+    id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class DailyReportBase(BaseModel):
+    report_date: date
+    total_sales: float
+    total_orders: int
+    average_order_value: float
+    most_sold_item: Optional[str] = None
+    total_inventory_cost: Optional[float] = None
+    gross_profit: float
+    staff_cost: Optional[float] = None
+    other_expenses: float = 0
+    net_profit: float
+    notes: Optional[str] = None
+
+
+class DailyReportCreate(DailyReportBase):
+    pass
+
+
+class DailyReportUpdate(BaseModel):
+    total_sales: Optional[float] = None
+    total_orders: Optional[int] = None
+    average_order_value: Optional[float] = None
+    most_sold_item: Optional[str] = None
+    total_inventory_cost: Optional[float] = None
+    gross_profit: Optional[float] = None
+    staff_cost: Optional[float] = None
+    other_expenses: Optional[float] = None
+    net_profit: Optional[float] = None
+    notes: Optional[str] = None
+
+
+class DailyReport(DailyReportBase):
+    id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# Staff Management Schemas
+class TimesheetBase(BaseModel):
+    staff_id: int
+    date: date
+    clock_in: time
+    clock_out: time
+    break_duration: int = 0  # in minutes
+    notes: Optional[str] = None
+
+
+class TimesheetCreate(TimesheetBase):
+    pass
+
+
+class TimesheetUpdate(BaseModel):
+    date: Optional[date] = None
+    clock_in: Optional[time] = None
+    clock_out: Optional[time] = None
+    break_duration: Optional[int] = None
+    notes: Optional[str] = None
+
+
+class Timesheet(TimesheetBase):
+    id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class SalaryRecordBase(BaseModel):
+    staff_id: int
+    period_start: date
+    period_end: date
+    regular_hours: float
+    overtime_hours: float = 0
+    regular_pay: float
+    overtime_pay: float = 0
+    bonuses: float = 0
+    deductions: float = 0
+    total_pay: float
+    is_paid: bool = False
+    notes: Optional[str] = None
+    paid_on: Optional[date] = None
+
+
+class SalaryRecordCreate(SalaryRecordBase):
+    pass
+
+
+class SalaryRecordUpdate(BaseModel):
+    regular_hours: Optional[float] = None
+    overtime_hours: Optional[float] = None
+    regular_pay: Optional[float] = None
+    overtime_pay: Optional[float] = None
+    bonuses: Optional[float] = None
+    deductions: Optional[float] = None
+    total_pay: Optional[float] = None
+    is_paid: Optional[bool] = None
+    notes: Optional[str] = None
+    paid_on: Optional[date] = None
+
+
+class SalaryRecord(SalaryRecordBase):
+    id: int
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class WorkScheduleBase(BaseModel):
+    staff_id: int
+    date: date
+    start_time: time
+    end_time: time
+    position: str
+    is_approved: bool = False
+
+
+class WorkScheduleCreate(WorkScheduleBase):
+    pass
+
+
+class WorkScheduleUpdate(BaseModel):
+    date: Optional[date] = None
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
+    position: Optional[str] = None
+    is_approved: Optional[bool] = None
+
+
+class WorkSchedule(WorkScheduleBase):
+    id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# System Settings Schemas
+class SystemSettingBase(BaseModel):
+    setting_key: str
+    setting_value: str
+    description: Optional[str] = None
+    category: str = "general"
+
+
+class SystemSettingCreate(SystemSettingBase):
+    pass
+
+
+class SystemSettingUpdate(BaseModel):
+    setting_value: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+
+
+class SystemSetting(SystemSettingBase):
+    id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class NotificationBase(BaseModel):
+    user_id: Optional[int] = None
+    title: str
+    message: str
+    notification_type: str = "info"
+
+
+class NotificationCreate(NotificationBase):
+    pass
+
+
+class NotificationUpdate(BaseModel):
+    is_read: Optional[bool] = None
+    read_at: Optional[datetime] = None
+
+
+class Notification(NotificationBase):
+    id: int
+    is_read: bool = False
+    created_at: Optional[datetime] = None
+    read_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# Analytics Schemas
+class SalesAnalytics(BaseModel):
+    total_revenue: float
+    total_orders: int
+    average_order_value: float
+    payment_breakdown: List[Dict[str, Any]]
+    daily_sales: List[Dict[str, Any]]
+    top_items: List[Dict[str, Any]]
+    category_revenue: List[Dict[str, Any]]
+
+
+class StaffAnalytics(BaseModel):
+    total_staff: int
+    active_staff: int
+    staff_by_position: List[Dict[str, Any]]
+    total_hours_worked: float
+    total_salary_paid: float
+    top_performers: List[Dict[str, Any]]
