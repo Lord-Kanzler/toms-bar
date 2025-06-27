@@ -26,7 +26,7 @@ async def get_staff_members(
         query = query.filter(StaffMemberModel.position == position)
     
     staff_members = query.all()
-    return staff_members
+    return [schemas.StaffMember.from_orm(member) for member in staff_members]
 
 
 @router.get("/{staff_id}", response_model=schemas.StaffMember)
@@ -63,16 +63,6 @@ async def create_staff_member(staff_member: schemas.StaffMemberCreate, db: Sessi
     db.refresh(db_staff_member)
     
     return schemas.StaffMember.from_orm(db_staff_member)
-        email=staff_member.email,
-        phone=staff_member.phone,
-        hire_date=staff_member.hire_date,
-        is_active=staff_member.is_active,
-        profile_image=staff_member.profile_image
-    )
-    db.add(db_staff_member)
-    db.commit()
-    db.refresh(db_staff_member)
-    return db_staff_member
 
 
 @router.put("/{staff_id}", response_model=schemas.StaffMember)
@@ -94,7 +84,7 @@ async def update_staff_member(staff_id: int, staff_member: schemas.StaffMemberUp
     
     db.commit()
     db.refresh(db_staff_member)
-    return db_staff_member
+    return schemas.StaffMember.from_orm(db_staff_member)
 
 
 @router.delete("/{staff_id}")
@@ -119,7 +109,7 @@ async def toggle_staff_member_active(staff_id: int, db: Session = Depends(get_db
     db_staff_member.is_active = not db_staff_member.is_active
     db.commit()
     db.refresh(db_staff_member)
-    return db_staff_member
+    return schemas.StaffMember.from_orm(db_staff_member)
 
 
 @router.get("/positions/list")

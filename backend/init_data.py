@@ -1,8 +1,12 @@
 # init_data.py - Initialize database with sample data
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from sqlalchemy.orm import sessionmaker
 from database import engine
-from models import Base, MenuItem, InventoryItem, StaffMember, Order, OrderItem
+from models import (
+    Base, MenuItem, InventoryItem, StaffMember, Order, OrderItem,
+    Timesheet, SalaryRecord, WorkSchedule, StockMovement, Sale,
+    DailyReport, SystemSettings, Notification
+)
 
 # Create all tables
 Base.metadata.create_all(bind=engine)

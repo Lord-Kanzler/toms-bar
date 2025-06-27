@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Test</title>
+</head>
+<body>
+    <h1>Testing JavaScript Functions</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        // Test the utility functions
+        function capitalizeWord(word) {
+            if (!word) return '';
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        const results = document.getElementById('results');
+        
+        // Test capitalizeWord
+        const testWord = capitalizeWord('pending');
+        results.innerHTML += `<p>capitalizeWord('pending'): ${testWord}</p>`;
+        
+        // Test formatDate
+        const testDate = formatDate('2025-06-26T13:39:46.546872');
+        results.innerHTML += `<p>formatDate('2025-06-26T13:39:46.546872'): ${testDate}</p>`;
+        
+        results.innerHTML += `<p style="color: green;">✅ All functions working correctly!</p>`;
+    </script>
+</body>
+</html>

@@ -11,6 +11,18 @@ const mainContent = document.getElementById('mainContent');
 const sidebar = document.getElementById('sidebar');
 const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
 
+// Utility functions
+function capitalizeWord(word) {
+    if (!word) return '';
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleString();
+}
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
@@ -1508,6 +1520,27 @@ window.deleteStaffMember = async function(staffId) {
         }
     }
 };
+
+// Event listener functions
+function setupOrderEventListeners() {
+    // Add event listeners for order-specific functionality
+    console.log('Order event listeners setup');
+}
+
+function setupMenuEventListeners() {
+    // Add event listeners for menu-specific functionality
+    console.log('Menu event listeners setup');
+}
+
+function setupInventoryEventListeners() {
+    // Add event listeners for inventory-specific functionality
+    console.log('Inventory event listeners setup');
+}
+
+function setupStaffEventListeners() {
+    // Add event listeners for staff-specific functionality
+    console.log('Staff event listeners setup');
+}
 
 // Global functions for button handlers
 window.updateOrderStatus = async function(orderId, status) {

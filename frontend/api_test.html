@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastroPro API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .loading { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>GastroPro API Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>Menu API Test</h2>
+        <div id="menu-results" class="loading">Loading...</div>
+        <pre id="menu-data"></pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Orders API Test</h2>
+        <div id="orders-results" class="loading">Loading...</div>
+        <pre id="orders-data"></pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Inventory API Test</h2>
+        <div id="inventory-results" class="loading">Loading...</div>
+        <pre id="inventory-data"></pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Staff API Test</h2>
+        <div id="staff-results" class="loading">Loading...</div>
+        <pre id="staff-data"></pre>
+    </div>
+
+    <script type="module">
+        const BASE_URL = 'http://localhost:8001/api';
+
+        async function testAPI(endpoint, resultId, dataId) {
+            try {
+                const response = await fetch(`${BASE_URL}${endpoint}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                document.getElementById(resultId).innerHTML = `<span class="success">✅ ${endpoint} - Success (${data.length} items)</span>`;
+                document.getElementById(dataId).textContent = JSON.stringify(data.slice(0, 2), null, 2); // Show first 2 items
+            } catch (error) {
+                document.getElementById(resultId).innerHTML = `<span class="error">❌ ${endpoint} - Error: ${error.message}</span>`;
+                document.getElementById(dataId).textContent = '';
+            }
+        }
+
+        // Test all APIs
+        async function runTests() {
+            await Promise.all([
+                testAPI('/menu/', 'menu-results', 'menu-data'),
+                testAPI('/orders/', 'orders-results', 'orders-data'),
+                testAPI('/inventory/', 'inventory-results', 'inventory-data'),
+                testAPI('/staff/', 'staff-results', 'staff-data')
+            ]);
+        }
+
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html>
