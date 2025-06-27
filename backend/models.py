@@ -82,8 +82,8 @@ class Timesheet(Base):
     id = Column(Integer, primary_key=True, index=True)
     staff_id = Column(Integer, ForeignKey("staff_members.id"))
     date = Column(Date)
-    clock_in = Column(Time)
-    clock_out = Column(Time)
+    clock_in = Column(DateTime)  # Changed to DateTime for compatibility with schema
+    clock_out = Column(DateTime)
     break_duration = Column(Integer)  # in minutes
     notes = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
@@ -118,8 +118,8 @@ class WorkSchedule(Base):
     id = Column(Integer, primary_key=True, index=True)
     staff_id = Column(Integer, ForeignKey("staff_members.id"))
     date = Column(Date)
-    start_time = Column(Time)
-    end_time = Column(Time)
+    start_time = Column(DateTime)  # Changed to DateTime for compatibility with schema
+    end_time = Column(DateTime)    # Changed to DateTime for compatibility with schema
     position = Column(String)
     is_approved = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
@@ -136,12 +136,13 @@ class Sale(Base):
     sale_date = Column(Date)
     total_amount = Column(Float)
     payment_method = Column(String)
-    payment_status = Column(String, default="completed")
-    receipt_number = Column(String, nullable=True)
+    tax_amount = Column(Float, nullable=True)
+    discount_amount = Column(Float, nullable=True)
+    served_by = Column(Integer, ForeignKey("staff_members.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     # Relationships
     order = relationship("Order", back_populates="sale")
+    server = relationship("StaffMember", foreign_keys=[served_by])
 
 
 class DailyReport(Base):
@@ -186,3 +187,20 @@ class Notification(Base):
     read_at = Column(DateTime, nullable=True)
     # Relationships
     user = relationship("StaffMember")
+
+
+class StockMovement(Base):
+    __tablename__ = "stock_movements"
+    id = Column(Integer, primary_key=True, index=True)
+    inventory_item_id = Column(Integer, ForeignKey("inventory_items.id"))
+    movement_type = Column(String)  # purchase, usage, adjustment, etc.
+    quantity = Column(Float)
+    cost = Column(Float, nullable=True)
+    reason = Column(String, nullable=True)
+    reference = Column(String, nullable=True)
+    performed_by = Column(Integer, ForeignKey("staff_members.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
+    
+    # Relationships
+    inventory_item = relationship("InventoryItem")
+    staff = relationship("StaffMember")
