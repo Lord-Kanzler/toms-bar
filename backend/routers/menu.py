@@ -5,12 +5,12 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from models import MenuItem as MenuItemModel
 from database import get_db
-import schemas
+from schemas import MenuItem as MenuItemSchema, MenuItemCreate, MenuItemUpdate
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.MenuItem])
+@router.get("/", response_model=List[MenuItemSchema])
 async def get_menu_items(
     category: Optional[str] = None,
     active_only: bool = True,
@@ -18,7 +18,7 @@ async def get_menu_items(
 ):
     """Get all menu items with optional filtering"""
     query = db.query(MenuItemModel)
-    
+
     if active_only:
         query = query.filter(MenuItemModel.is_active == True)
     
@@ -29,7 +29,7 @@ async def get_menu_items(
     return menu_items
 
 
-@router.get("/{item_id}", response_model=schemas.MenuItem)
+@router.get("/{item_id}", response_model=MenuItemSchema)
 async def get_menu_item(item_id: int, db: Session = Depends(get_db)):
     """Get a specific menu item by ID"""
     menu_item = db.query(MenuItemModel).filter(MenuItemModel.id == item_id).first()
@@ -38,8 +38,8 @@ async def get_menu_item(item_id: int, db: Session = Depends(get_db)):
     return menu_item
 
 
-@router.post("/", response_model=schemas.MenuItem)
-async def create_menu_item(menu_item: schemas.MenuItemCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=MenuItemSchema)
+async def create_menu_item(menu_item: MenuItemCreate, db: Session = Depends(get_db)):
     """Create a new menu item"""
     db_menu_item = MenuItemModel(
         name=menu_item.name,
@@ -58,8 +58,8 @@ async def create_menu_item(menu_item: schemas.MenuItemCreate, db: Session = Depe
     return db_menu_item
 
 
-@router.put("/{item_id}", response_model=schemas.MenuItem)
-async def update_menu_item(item_id: int, menu_item: schemas.MenuItemUpdate, db: Session = Depends(get_db)):
+@router.put("/{item_id}", response_model=MenuItemSchema)
+async def update_menu_item(item_id: int, menu_item: MenuItemUpdate, db: Session = Depends(get_db)):
     """Update an existing menu item"""
     db_menu_item = db.query(MenuItemModel).filter(MenuItemModel.id == item_id).first()
     if not db_menu_item:

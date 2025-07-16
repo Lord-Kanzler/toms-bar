@@ -6,18 +6,19 @@ from sqlalchemy.orm import Session
 from models import Order as OrderModel, OrderItem as OrderItemModel
 from database import get_db
 import schemas
+from schemas import Order as OrderSchema
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Order])
+@router.get("/", response_model=List[OrderSchema])
 async def get_orders(db: Session = Depends(get_db)):
     """Get all orders"""
     orders = db.query(OrderModel).all()
     return orders
 
 
-@router.get("/{order_id}", response_model=schemas.Order)
+@router.get("/{order_id}", response_model=OrderSchema)
 async def get_order(order_id: int, db: Session = Depends(get_db)):
     """Get a specific order by ID"""
     order = db.query(OrderModel).filter(OrderModel.id == order_id).first()

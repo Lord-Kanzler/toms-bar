@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+    <!-- Include Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GastroPro API Connection Test</h1>
+        
+        <div id="status-orders" class="status-section">
+            <h2>Orders API</h2>
+            <div id="orders-status">
+                <div class="loader"></div> Testing connection...
+            </div>
+            <pre id="orders-data"></pre>
+        </div>
+        
+        <div id="status-menu" class="status-section">
+            <h2>Menu API</h2>
+            <div id="menu-status">
+                <div class="loader"></div> Testing connection...
+            </div>
+            <pre id="menu-data"></pre>
+        </div>
+        
+        <div id="status-inventory" class="status-section">
+            <h2>Inventory API</h2>
+            <div id="inventory-status">
+                <div class="loader"></div> Testing connection...
+            </div>
+            <pre id="inventory-data"></pre>
+        </div>
+        
+        <div id="status-staff" class="status-section">
+            <h2>Staff API</h2>
+            <div id="staff-status">
+                <div class="loader"></div> Testing connection...
+            </div>
+            <pre id="staff-data"></pre>
+        </div>
+    </div>
+
+    <script src="static/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Test Orders API
+            try {
+                const orders = await ordersAPI.getAll();
+                document.getElementById('orders-status').innerHTML = '<span style="color: green;">✓</span> Connected successfully!';
+                document.getElementById('status-orders').classList.add('status-success');
+                document.getElementById('orders-data').textContent = JSON.stringify(orders, null, 2);
+            } catch (error) {
+                document.getElementById('orders-status').innerHTML = '<span style="color: red;">✗</span> ' + error.message;
+                document.getElementById('status-orders').classList.add('status-error');
+                document.getElementById('orders-data').textContent = '';
+            }
+            
+            // Test Menu API
+            try {
+                const menu = await menuAPI.getAll();
+                document.getElementById('menu-status').innerHTML = '<span style="color: green;">✓</span> Connected successfully!';
+                document.getElementById('status-menu').classList.add('status-success');
+                document.getElementById('menu-data').textContent = JSON.stringify(menu, null, 2);
+            } catch (error) {
+                document.getElementById('menu-status').innerHTML = '<span style="color: red;">✗</span> ' + error.message;
+                document.getElementById('status-menu').classList.add('status-error');
+                document.getElementById('menu-data').textContent = '';
+            }
+            
+            // Test Inventory API
+            try {
+                const inventory = await inventoryAPI.getAll();
+                document.getElementById('inventory-status').innerHTML = '<span style="color: green;">✓</span> Connected successfully!';
+                document.getElementById('status-inventory').classList.add('status-success');
+                document.getElementById('inventory-data').textContent = JSON.stringify(inventory, null, 2);
+            } catch (error) {
+                document.getElementById('inventory-status').innerHTML = '<span style="color: red;">✗</span> ' + error.message;
+                document.getElementById('status-inventory').classList.add('status-error');
+                document.getElementById('inventory-data').textContent = '';
+            }
+            
+            // Test Staff API
+            try {
+                const staff = await staffAPI.getAll();
+                document.getElementById('staff-status').innerHTML = '<span style="color: green;">✓</span> Connected successfully!';
+                document.getElementById('status-staff').classList.add('status-success');
+                document.getElementById('staff-data').textContent = JSON.stringify(staff, null, 2);
+            } catch (error) {
+                document.getElementById('staff-status').innerHTML = '<span style="color: red;">✗</span> ' + error.message;
+                document.getElementById('status-staff').classList.add('status-error');
+                document.getElementById('staff-data').textContent = '';
+            }
+        });
+    </script>
+</body>
+</html>

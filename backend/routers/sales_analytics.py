@@ -6,7 +6,7 @@ from typing import List, Optional
 from datetime import date, datetime, timedelta
 
 from database import get_db
-from models import Sale, Order, OrderItem, MenuItem, DailyReport
+from models import Sale, Order, OrderItem, MenuItem, DailyReport, StaffMember
 from schemas import (
     Sale as SaleSchema,
     SaleCreate,
@@ -216,9 +216,9 @@ def get_monthly_report(month: int, year: int, db: Session = Depends(get_db)):
     # Aggregate monthly data
     total_sales = sum(float(report.total_sales) for report in daily_reports)
     total_orders = sum(report.total_orders for report in daily_reports)
-    total_customers = sum(report.total_customers for report in daily_reports)
-    total_staff_cost = sum(float(report.staff_cost) for report in daily_reports)
-    total_inventory_cost = sum(float(report.inventory_cost) for report in daily_reports)
+    total_customers = sum(report.total_customers or 0 for report in daily_reports)
+    total_staff_cost = sum(float(report.staff_cost or 0) for report in daily_reports)
+    total_inventory_cost = sum(float(report.inventory_cost or 0) for report in daily_reports)
     net_profit = sum(float(report.net_profit) for report in daily_reports)
     
     average_daily_sales = total_sales / len(daily_reports)
@@ -279,3 +279,115 @@ def export_sales_to_excel(
             "total_revenue": sum(float(sale.total_amount) for sale in sales)
         }
     }
+
+@router.get("/analytics/hourly-sales")
+def get_hourly_sales(
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Get hourly sales data to identify peak hours"""
+    if not start_date:
+        start_date = date.today() - timedelta(days=30)
+    if not end_date:
+        end_date = date.today()
+    
+    # Query to extract hour of day and sum sales by hour
+    hourly_sales = db.query(
+        extract('hour', Order.created_at).label('hour'),
+        func.sum(Sale.total_amount).label('total_sales'),
+        func.count(Sale.id).label('order_count')
+    ).join(Sale, Order.id == Sale.order_id)\
+     .filter(Sale.sale_date >= start_date, Sale.sale_date <= end_date)\
+     .group_by('hour')\
+     .order_by('hour')\
+     .all()
+    
+    # Format the results
+    result = [
+        {
+            "hour": int(hour),
+            "hour_display": f"{int(hour)}:00 - {int(hour) + 1}:00",
+            "total_sales": float(total_sales),
+            "order_count": int(order_count)
+        }
+        for hour, total_sales, order_count in hourly_sales
+    ]
+    
+    return result
+
+@router.get("/analytics/staff-performance")
+def get_staff_performance(
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Get sales performance by staff member"""
+    if not start_date:
+        start_date = date.today() - timedelta(days=30)
+    if not end_date:
+        end_date = date.today()
+    
+    # Join with StaffMember to get staff name
+    staff_performance = db.query(
+        StaffMember.id,
+        StaffMember.name.label('staff_name'),
+        func.sum(Sale.total_amount).label('total_sales'),
+        func.count(Sale.id).label('order_count')
+    ).join(Sale, StaffMember.id == Sale.served_by)\
+     .filter(Sale.sale_date >= start_date, Sale.sale_date <= end_date)\
+     .group_by(StaffMember.id, StaffMember.name)\
+     .order_by(desc('total_sales'))\
+     .all()
+    
+    # Format the results
+    result = [
+        {
+            "staff_id": staff_id,
+            "staff_name": staff_name,
+            "total_sales": float(total_sales),
+            "order_count": int(order_count),
+            "average_order_value": float(total_sales) / int(order_count) if order_count else 0
+        }
+        for staff_id, staff_name, total_sales, order_count in staff_performance
+    ]
+    
+    return result
+
+@router.get("/analytics/product-category-performance")
+def get_category_performance(
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Get sales performance by product category"""
+    if not start_date:
+        start_date = date.today() - timedelta(days=30)
+    if not end_date:
+        end_date = date.today()
+    
+    # Analyze sales by product category with quantity and revenue
+    category_performance = db.query(
+        MenuItem.category,
+        func.sum(OrderItem.quantity).label('total_quantity'),
+        func.sum(OrderItem.quantity * MenuItem.price).label('total_revenue')
+    ).join(OrderItem, MenuItem.id == OrderItem.menu_item_id)\
+     .join(Order, OrderItem.order_id == Order.id)\
+     .join(Sale, Order.id == Sale.order_id)\
+     .filter(Sale.sale_date >= start_date, Sale.sale_date <= end_date)\
+     .group_by(MenuItem.category)\
+     .order_by(desc('total_revenue'))\
+     .all()
+    
+    # Format the results
+    result = [
+        {
+            "category": category,
+            "total_quantity": int(total_quantity),
+            "total_revenue": float(total_revenue),
+            "average_price_per_item": float(total_revenue) / int(total_quantity) if total_quantity else 0
+        }
+        for category, total_quantity, total_revenue in category_performance
+    ]
+    
+    return result
