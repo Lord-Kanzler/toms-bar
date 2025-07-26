@@ -21,7 +21,7 @@ async def get_inventory_items(
     if low_stock_only:
         query = query.filter(InventoryItemModel.current_stock <= InventoryItemModel.threshold)
     if alcohol_only:
-        query = query.filter(InventoryItemModel.is_alcohol == True)
+        query = query.filter(InventoryItemModel.is_alcohol)
     inventory_items = query.all()
     return [InventoryItemSchema.from_orm(item) for item in inventory_items]
 
@@ -110,12 +110,12 @@ async def update_stock_level(
 
 @router.get("/alcohol", response_model=List[InventoryItemSchema])
 async def get_alcohol_inventory(db: Session = Depends(get_db)):
-    alcohol_items = db.query(InventoryItemModel).filter(InventoryItemModel.is_alcohol == True).all()
+    alcohol_items = db.query(InventoryItemModel).filter(InventoryItemModel.is_alcohol).all()
     return [InventoryItemSchema.from_orm(item) for item in alcohol_items]
 
 @router.get("/alcohol/by-type")
 async def get_alcohol_by_type(db: Session = Depends(get_db)):
-    alcohol_items = db.query(InventoryItemModel).filter(InventoryItemModel.is_alcohol == True).all()
+    alcohol_items = db.query(InventoryItemModel).filter(InventoryItemModel.is_alcohol).all()
     grouped = {}
     for item in alcohol_items:
         alcohol_type = item.alcohol_type or "Other"
@@ -123,3 +123,23 @@ async def get_alcohol_by_type(db: Session = Depends(get_db)):
             grouped[alcohol_type] = []
         grouped[alcohol_type].append(InventoryItemSchema.from_orm(item))
     return grouped
+
+@router.get("/summary/stats")
+async def get_inventory_summary(db: Session = Depends(get_db)):
+    """Get inventory summary statistics"""
+    total_items = db.query(InventoryItemModel).count()
+    low_stock_items = db.query(InventoryItemModel).filter(
+        InventoryItemModel.current_stock <= InventoryItemModel.threshold
+    ).count()
+    out_of_stock_items = db.query(InventoryItemModel).filter(
+        InventoryItemModel.current_stock <= 0
+    ).count()
+    alcohol_items = db.query(InventoryItemModel).filter(InventoryItemModel.is_alcohol).count()
+    
+    return {
+        "total_items": total_items,
+        "low_stock_items": low_stock_items,
+        "out_of_stock_items": out_of_stock_items,
+        "alcohol_items": alcohol_items,
+        "stock_health": "Good" if low_stock_items == 0 else "Needs Attention" if low_stock_items < 5 else "Critical"
+    }

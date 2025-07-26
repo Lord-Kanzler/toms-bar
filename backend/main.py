@@ -39,7 +39,6 @@ app.include_router(inventory.router, prefix="/api/inventory", tags=["inventory"]
 app.include_router(staff.router, prefix="/api/staff", tags=["staff"])
 
 # Include analytics, management and system routes
-app.include_router(sales_analytics.router, tags=["sales-analytics"])
 app.include_router(sales_analytics.router)
 app.include_router(staff_management.router)
 app.include_router(system_settings.router)
