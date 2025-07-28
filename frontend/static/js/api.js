@@ -324,12 +324,12 @@ async function createOrder(orderData) {
     return ordersAPI.create(orderData);
 }
 
-// Export APIs
-export { 
-    ordersAPI, 
-    menuAPI, 
-    inventoryAPI, 
-    staffAPI,
-    fetchOrders, 
-    createOrder 
-};
+// Make APIs available globally
+window.ordersAPI = ordersAPI;
+window.menuAPI = menuAPI;
+window.inventoryAPI = inventoryAPI;
+window.staffAPI = staffAPI;
+window.fetchOrders = fetchOrders;
+window.createOrder = createOrder;
+
+console.log('APIs loaded successfully');

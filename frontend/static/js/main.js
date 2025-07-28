@@ -1,5 +1,30 @@
 // main.js - Main application logic
-import { ordersAPI, menuAPI, inventoryAPI, staffAPI } from './api.js';
+
+// Define modal functions globally first
+function closeModal() {
+    console.log('closeModal called');
+    const modalContainer = document.getElementById('modalContainer');
+    if (modalContainer) {
+        modalContainer.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        console.log('Modal closed');
+    }
+}
+
+function openModal(content) {
+    const modalContainer = document.getElementById('modalContainer');
+    const modalContent = document.getElementById('modalContent');
+    
+    if (modalContainer && modalContent) {
+        modalContent.innerHTML = content;
+        modalContainer.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Make functions available globally
+window.closeModal = closeModal;
+window.openModal = openModal;
 
 // Global state
 let currentSection = 'dashboardSection';
@@ -25,8 +50,34 @@ function formatDate(dateString) {
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', async () => {
-    setupEventListeners();
-    await loadSection('dashboardSection');
+    console.log('DOM loaded, checking for APIs...');
+    
+    // Wait for APIs to be available
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max
+    
+    while (attempts < maxAttempts) {
+        console.log(`API check attempt ${attempts + 1}/${maxAttempts}`);
+        console.log('Available APIs:', {
+            ordersAPI: !!window.ordersAPI,
+            menuAPI: !!window.menuAPI,
+            inventoryAPI: !!window.inventoryAPI,
+            staffAPI: !!window.staffAPI
+        });
+        
+        if (window.ordersAPI && window.menuAPI && window.inventoryAPI && window.staffAPI) {
+            console.log('APIs loaded successfully, initializing app...');
+            setupEventListeners();
+            await loadSection('dashboardSection');
+            return;
+        }
+        
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.error('APIs failed to load after 5 seconds');
+    showError('Failed to load application APIs. Please refresh the page.');
 });
 
 // Setup event listeners
@@ -115,12 +166,30 @@ async function loadSection(section) {
 // Dashboard section
 async function loadDashboard() {
     try {
-        const [orders, lowStockItems, inventorySummary, staffSummary] = await Promise.all([
-            ordersAPI.getAll(),
-            inventoryAPI.getLowStock(),
-            inventoryAPI.getSummary(),
-            staffAPI.getSummary()
-        ]);
+        console.log('Loading dashboard data...');
+        console.log('API objects available:', {
+            ordersAPI: !!window.ordersAPI,
+            inventoryAPI: !!window.inventoryAPI,
+            staffAPI: !!window.staffAPI
+        });
+
+        console.log('Calling ordersAPI.getAll()...');
+        const orders = await ordersAPI.getAll();
+        console.log('Orders data:', orders);
+
+        console.log('Calling inventoryAPI.getLowStock()...');
+        const lowStockItems = await inventoryAPI.getLowStock();
+        console.log('Low stock data:', lowStockItems);
+
+        console.log('Calling inventoryAPI.getSummary()...');
+        const inventorySummary = await inventoryAPI.getSummary();
+        console.log('Inventory summary:', inventorySummary);
+
+        console.log('Calling staffAPI.getSummary()...');
+        const staffSummary = await staffAPI.getSummary();
+        console.log('Staff summary:', staffSummary);
+
+        console.log('All API calls completed, generating HTML...');
 
         const dashboardHTML = generateDashboardHTML({
             orders,
@@ -130,7 +199,9 @@ async function loadDashboard() {
         });
 
         mainContent.innerHTML = dashboardHTML;
+        console.log('Dashboard rendered successfully');
     } catch (error) {
+        console.error('Dashboard loading failed:', error);
         throw error;
     }
 }
