@@ -181,10 +181,17 @@ class Notification(Base):
     user_id = Column(Integer, ForeignKey("staff_members.id"), nullable=True)
     title = Column(String)
     message = Column(Text)
-    notification_type = Column(String, default="info")
+    notification_type = Column(String, default="info")  # info, warning, error, success
+    priority = Column(String, default="normal")  # low, normal, high, urgent
+    category = Column(String, default="general")  # inventory, orders, staff, system
     is_read = Column(Boolean, default=False)
+    is_dismissed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now)
     read_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    action_url = Column(String, nullable=True)  # URL for actionable notifications
+    action_label = Column(String, nullable=True)  # Label for action button
+    extra_data = Column(Text, nullable=True)  # JSON string for additional data
     # Relationships
     user = relationship("StaffMember")
 

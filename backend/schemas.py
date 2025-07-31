@@ -409,7 +409,13 @@ class NotificationBase(BaseModel):
     user_id: Optional[int] = None
     title: str
     message: str
-    notification_type: str = "info"
+    notification_type: str = "info"  # info, warning, error, success
+    priority: str = "normal"  # low, normal, high, urgent
+    category: str = "general"  # inventory, orders, staff, system
+    expires_at: Optional[datetime] = None
+    action_url: Optional[str] = None
+    action_label: Optional[str] = None
+    extra_data: Optional[str] = None
 
 
 class NotificationCreate(NotificationBase):
@@ -418,17 +424,28 @@ class NotificationCreate(NotificationBase):
 
 class NotificationUpdate(BaseModel):
     is_read: Optional[bool] = None
+    is_dismissed: Optional[bool] = None
     read_at: Optional[datetime] = None
 
 
 class Notification(NotificationBase):
     id: int
     is_read: bool = False
+    is_dismissed: bool = False
     created_at: Optional[datetime] = None
     read_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+
+# Notification statistics and summary schemas
+class NotificationStats(BaseModel):
+    total_notifications: int
+    unread_count: int
+    by_category: Dict[str, int]
+    by_priority: Dict[str, int]
+    by_type: Dict[str, int]
 
 
 # Analytics Schemas

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from models import InventoryItem as InventoryItemModel
 from database import get_db
 from schemas import InventoryItem as InventoryItemSchema, InventoryItemCreate, InventoryItemUpdate
+from routers.notifications import create_low_stock_notification
 
 router = APIRouter()
 
@@ -99,13 +100,20 @@ async def update_stock_level(
     new_stock: float,
     db: Session = Depends(get_db)
 ):
+    """Update stock level and check for low stock"""
     db_inventory_item = db.query(InventoryItemModel).filter(InventoryItemModel.id == item_id).first()
     if not db_inventory_item:
         raise HTTPException(status_code=404, detail="Inventory item not found")
+    
     db_inventory_item.current_stock = new_stock
     db_inventory_item.last_updated = datetime.utcnow()
     db.commit()
     db.refresh(db_inventory_item)
+    
+    # Check for low stock and create notification if needed
+    if new_stock <= db_inventory_item.threshold:
+        await create_low_stock_notification(db_inventory_item, db)
+    
     return InventoryItemSchema.from_orm(db_inventory_item)
 
 @router.get("/alcohol", response_model=List[InventoryItemSchema])

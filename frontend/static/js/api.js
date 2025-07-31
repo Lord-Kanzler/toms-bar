@@ -315,6 +315,107 @@ const staffAPI = {
     }
 };
 
+// Notifications API
+const notificationsAPI = {
+    async getAll(filters = {}) {
+        try {
+            const params = new URLSearchParams();
+            if (filters.unread_only) params.append('unread_only', 'true');
+            if (filters.category) params.append('category', filters.category);
+            if (filters.priority) params.append('priority', filters.priority);
+            if (filters.user_id) params.append('user_id', filters.user_id);
+            if (filters.limit) params.append('limit', filters.limit);
+            
+            const response = await axios.get(`${API_BASE_URL}/notifications/?${params}`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to fetch notifications'));
+        }
+    },
+
+    async getStats(userId = null) {
+        try {
+            const params = userId ? `?user_id=${userId}` : '';
+            const response = await axios.get(`${API_BASE_URL}/notifications/stats${params}`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to fetch notification stats'));
+        }
+    },
+
+    async getUnreadCount(userId = null) {
+        try {
+            const params = userId ? `?user_id=${userId}` : '';
+            const response = await axios.get(`${API_BASE_URL}/notifications/unread-count${params}`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to fetch unread count'));
+        }
+    },
+
+    async create(notificationData) {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/notifications/`, notificationData);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to create notification'));
+        }
+    },
+
+    async markAsRead(notificationId) {
+        try {
+            const response = await axios.put(`${API_BASE_URL}/notifications/${notificationId}`, {
+                is_read: true
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to mark notification as read'));
+        }
+    },
+
+    async markAsDismissed(notificationId) {
+        try {
+            const response = await axios.put(`${API_BASE_URL}/notifications/${notificationId}`, {
+                is_dismissed: true
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to dismiss notification'));
+        }
+    },
+
+    async markAllAsRead(userId = null, category = null) {
+        try {
+            const params = new URLSearchParams();
+            if (userId) params.append('user_id', userId);
+            if (category) params.append('category', category);
+            
+            const response = await axios.post(`${API_BASE_URL}/notifications/mark-all-read?${params}`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to mark all notifications as read'));
+        }
+    },
+
+    async delete(notificationId) {
+        try {
+            const response = await axios.delete(`${API_BASE_URL}/notifications/${notificationId}`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to delete notification'));
+        }
+    },
+
+    async cleanupExpired() {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/notifications/cleanup-expired`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error, 'Failed to cleanup expired notifications'));
+        }
+    }
+};
+
 // Legacy functions for backward compatibility
 async function fetchOrders() {
     return ordersAPI.getAll();
@@ -329,6 +430,7 @@ window.ordersAPI = ordersAPI;
 window.menuAPI = menuAPI;
 window.inventoryAPI = inventoryAPI;
 window.staffAPI = staffAPI;
+window.notificationsAPI = notificationsAPI;
 window.fetchOrders = fetchOrders;
 window.createOrder = createOrder;
 

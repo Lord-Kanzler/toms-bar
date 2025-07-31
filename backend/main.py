@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 import os
 import uvicorn
 
-from routers import orders, menu, inventory, staff
+from routers import orders, menu, inventory, staff, notifications
 from routers import sales_analytics, staff_management, system_settings, financial_reporting
 
 app = FastAPI(title="GastroPro API", version="1.0.0")
@@ -37,6 +37,7 @@ app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(menu.router, prefix="/api/menu", tags=["menu"])
 app.include_router(inventory.router, prefix="/api/inventory", tags=["inventory"])
 app.include_router(staff.router, prefix="/api/staff", tags=["staff"])
+app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
 
 # Include analytics, management and system routes
 app.include_router(sales_analytics.router)

@@ -7,6 +7,7 @@ from models import Order as OrderModel, OrderItem as OrderItemModel
 from database import get_db
 import schemas
 from schemas import Order as OrderSchema
+from routers.notifications import create_order_notification
 
 router = APIRouter()
 
@@ -53,6 +54,10 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     
     db.commit()
     db.refresh(db_order)
+    
+    # Create notification for new order
+    await create_order_notification(db_order.id, "new_order", db)
+    
     return db_order
 
 
@@ -64,11 +69,21 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
         raise HTTPException(status_code=404, detail="Order not found")
     
     update_data = order.dict(exclude_unset=True)
+    old_status = db_order.status
+    
     for field, value in update_data.items():
         setattr(db_order, field, value)
     
     db.commit()
     db.refresh(db_order)
+    
+    # Create notifications for status changes
+    if old_status != db_order.status:
+        if db_order.status == "ready":
+            await create_order_notification(db_order.id, "order_ready", db)
+        elif db_order.status == "delayed":
+            await create_order_notification(db_order.id, "order_delayed", db)
+    
     return db_order
 
 

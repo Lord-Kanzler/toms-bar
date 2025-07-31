@@ -62,10 +62,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             ordersAPI: !!window.ordersAPI,
             menuAPI: !!window.menuAPI,
             inventoryAPI: !!window.inventoryAPI,
-            staffAPI: !!window.staffAPI
+            staffAPI: !!window.staffAPI,
+            notificationsAPI: !!window.notificationsAPI
         });
         
-        if (window.ordersAPI && window.menuAPI && window.inventoryAPI && window.staffAPI) {
+        if (window.ordersAPI && window.menuAPI && window.inventoryAPI && window.staffAPI && window.notificationsAPI) {
             console.log('APIs loaded successfully, initializing app...');
             setupEventListeners();
             await loadSection('dashboardSection');
