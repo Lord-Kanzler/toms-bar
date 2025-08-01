@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from models import InventoryItem as InventoryItemModel
 from database import get_db
 from schemas import InventoryItem as InventoryItemSchema, InventoryItemCreate, InventoryItemUpdate
-from routers.notifications import create_low_stock_notification
+from simple_notifications import SimpleNotificationManager
 
 router = APIRouter()
 
@@ -105,14 +105,17 @@ async def update_stock_level(
     if not db_inventory_item:
         raise HTTPException(status_code=404, detail="Inventory item not found")
     
+    old_stock = db_inventory_item.current_stock
     db_inventory_item.current_stock = new_stock
     db_inventory_item.last_updated = datetime.utcnow()
     db.commit()
     db.refresh(db_inventory_item)
     
-    # Check for low stock and create notification if needed
-    if new_stock <= db_inventory_item.threshold:
-        await create_low_stock_notification(db_inventory_item, db)
+    # Create notifications for stock events
+    if new_stock <= 0 and old_stock > 0:
+        SimpleNotificationManager.create_inventory_out_of_stock_alert(db_inventory_item)
+    elif new_stock <= db_inventory_item.threshold and old_stock > db_inventory_item.threshold:
+        SimpleNotificationManager.create_inventory_low_stock_alert(db_inventory_item)
     
     return InventoryItemSchema.from_orm(db_inventory_item)
 

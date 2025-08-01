@@ -7,7 +7,7 @@ from models import Order as OrderModel, OrderItem as OrderItemModel
 from database import get_db
 import schemas
 from schemas import Order as OrderSchema
-from routers.notifications import create_order_notification
+from simple_notifications import SimpleNotificationManager
 
 router = APIRouter()
 
@@ -55,8 +55,8 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(db_order)
     
-    # Create notification for new order
-    await create_order_notification(db_order.id, "new_order", db)
+    # Create notification for new order using simple notification manager
+    SimpleNotificationManager.create_order_notification(db_order, "created")
     
     return db_order
 
@@ -77,12 +77,12 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
     db.commit()
     db.refresh(db_order)
     
-    # Create notifications for status changes
+    # Create notifications for status changes using simple notification manager
     if old_status != db_order.status:
         if db_order.status == "ready":
-            await create_order_notification(db_order.id, "order_ready", db)
+            SimpleNotificationManager.create_order_notification(db_order, "ready")
         elif db_order.status == "delayed":
-            await create_order_notification(db_order.id, "order_delayed", db)
+            SimpleNotificationManager.create_order_notification(db_order, "delayed")
     
     return db_order
 

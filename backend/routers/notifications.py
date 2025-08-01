@@ -12,6 +12,8 @@ from schemas import (
     NotificationUpdate,
     NotificationStats
 )
+from notification_events import NotificationEventManager
+from simple_notifications import SimpleNotificationManager
 import json
 
 router = APIRouter()
@@ -334,3 +336,28 @@ async def create_system_notification(title: str, message: str, priority: str = "
         db.refresh(notification)
     
     return notification
+
+
+@router.post("/trigger-system-maintenance")
+async def trigger_system_maintenance_notification(
+    message: str = "System maintenance scheduled",
+    priority: str = "high",
+    db: Session = Depends(get_db)
+):
+    """Trigger a system maintenance notification using the simple notification manager"""
+    notification = SimpleNotificationManager.create_system_notification(message, priority)
+    return {"message": "System maintenance notification created", "notification_id": notification.id}
+
+
+@router.post("/check-inventory-alerts")
+async def check_inventory_alerts(db: Session = Depends(get_db)):
+    """Check all inventory items and create alerts for low/out of stock items"""
+    alerts_created = SimpleNotificationManager.check_inventory_and_create_alerts()
+    return {"message": f"Inventory check completed, {alerts_created} alerts created"}
+
+
+@router.get("/simple-stats")
+async def get_simple_notification_stats():
+    """Get notification statistics using simple manager"""
+    stats = SimpleNotificationManager.get_notification_stats()
+    return stats
